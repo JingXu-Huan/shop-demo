@@ -9,6 +9,7 @@ import com.jingxu.shopdemo.mapper.UsersMapper;
 import com.jingxu.shopdemo.service.UserService;
 import com.jingxu.shopdemo.utils.UserContext;
 import com.jingxu.shopdemo.utils.Utils;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -52,25 +53,29 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
     }
 
     @Override
-    public Result singIn(UserDto userDto) {
+    public Result singIn(UserDto userDto,HttpSession session) {
         if (userDto == null) {
             return null;
         }
         String username = userDto.getUsername();
         String password = userDto.getPassword();
+
         Users users = this.lambdaQuery().eq(Users::getUsername, username).one();
         if (users != null) {
             if (users.getPassword().equals(password)) {
                 Integer userId = users.getUserId();
-                UserContext.set(new Users().setUserId(userId));
-                int count = jdbcTemplate.queryForObject(Utils.querySql, Integer.class,userId);
-                if (count==0){
+                UserContext.set(userId);
+                session.setAttribute("userId",userId);
+                Integer count = jdbcTemplate.queryForObject(Utils.querySql, Integer.class,userId);
+                //如果是首次登录,新增登陆表
+                if (count==null||count==0){
                     jdbcTemplate.update(Utils.insertSql,userId,true);
                 }
-
                 jdbcTemplate.update(Utils.updateSql, userId);
             }
+
+            return Result.ok("用户" + username + "登录成功", 1);
         }
-        return Result.ok("用户" + username + "登录成功", 1);
+        return Result.fail("登录失败");
     }
 }

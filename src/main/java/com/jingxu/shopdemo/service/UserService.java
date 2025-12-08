@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jingxu.shopdemo.domain.dto.UserDto;
 import com.jingxu.shopdemo.domain.entity.Users;
 import com.jingxu.shopdemo.domain.vo.Result;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author jingxu
@@ -14,5 +15,5 @@ import com.jingxu.shopdemo.domain.vo.Result;
 public interface UserService extends IService<Users> {
     Result singUp(UserDto userDto);
 
-    Result singIn(UserDto userDto);
+    Result singIn(UserDto userDto, HttpSession httpSession);
 }

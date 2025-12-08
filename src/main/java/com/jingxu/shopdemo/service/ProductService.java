@@ -3,6 +3,7 @@ package com.jingxu.shopdemo.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jingxu.shopdemo.domain.dto.ProductDto;
+import com.jingxu.shopdemo.domain.dto.ProductListDto;
 import com.jingxu.shopdemo.domain.entity.Products;
 import com.jingxu.shopdemo.domain.vo.Result;
 
@@ -14,4 +15,6 @@ import com.jingxu.shopdemo.domain.vo.Result;
 public interface ProductService extends IService<Products> {
 
     Result orderItems(ProductDto productDto);
+
+    Result orderItemsByList(ProductListDto productListDto);
 }

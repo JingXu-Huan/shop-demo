@@ -5,6 +5,7 @@ import com.jingxu.shopdemo.domain.dto.ProductDto;
 import com.jingxu.shopdemo.domain.dto.UserDto;
 import com.jingxu.shopdemo.domain.vo.Result;
 import com.jingxu.shopdemo.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +25,10 @@ public class UserController {
         return userService.singUp(userDto);
     }
 
-    @GetMapping
-    public Result singIn(@RequestBody UserDto userDto){
-        return userService.singIn(userDto);
+    @PostMapping
+    public Result singIn(@RequestBody UserDto userDto , HttpSession session){
+
+        return userService.singIn(userDto,session);
     }
 
 }
