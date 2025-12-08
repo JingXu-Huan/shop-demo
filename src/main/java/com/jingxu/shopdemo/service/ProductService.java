@@ -1,0 +1,17 @@
+package com.jingxu.shopdemo.service;
+
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.jingxu.shopdemo.domain.dto.ProductDto;
+import com.jingxu.shopdemo.domain.entity.Products;
+import com.jingxu.shopdemo.domain.vo.Result;
+
+/**
+ * @author jingxu
+ * @version 1.0.0
+ * @since 2025/12/8
+ */
+public interface ProductService extends IService<Products> {
+
+    Result orderItems(ProductDto productDto);
+}
