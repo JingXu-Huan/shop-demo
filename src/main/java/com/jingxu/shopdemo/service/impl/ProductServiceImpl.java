@@ -1,12 +1,14 @@
 package com.jingxu.shopdemo.service.impl;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jingxu.shopdemo.domain.dto.ProductDto;
 import com.jingxu.shopdemo.domain.dto.ProductListDto;
 import com.jingxu.shopdemo.domain.entity.OrderItems;
 import com.jingxu.shopdemo.domain.entity.Orders;
 import com.jingxu.shopdemo.domain.entity.Products;
+import com.jingxu.shopdemo.domain.vo.ItemVO;
 import com.jingxu.shopdemo.domain.vo.Result;
 import com.jingxu.shopdemo.exception.BusinessException;
 import com.jingxu.shopdemo.exception.FailCodeEnums;
@@ -17,11 +19,13 @@ import com.jingxu.shopdemo.service.ProductService;
 import com.jingxu.shopdemo.utils.UserContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,7 +86,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
 
     /**
      * 此方法会在异步线程中开启任务,完成订单表的写入和订单详情表的写入。
-     *
      * @param userId    用户的ID
      * @param total     所有商品的总金额
      * @param productId 当前要处理的订单id
@@ -159,7 +162,27 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
         return Result.ok("下单成功");
     }
 
-    public String findName(Integer productId){
-        return this.lambdaQuery().eq(Products::getProductId,productId).one().getName();
+    public String findName(Integer productId) {
+        return this.lambdaQuery().eq(Products::getProductId, productId).one().getName();
+    }
+
+    @Override
+    public List<ItemVO> queryAllItem(int pageNum, int pageSize) {
+        Page<Products> page = this.page(new Page<>(pageNum, pageSize));
+
+        //总页数
+        long total = page.getTotal();
+        //当前页数
+        long current = page.getCurrent();
+
+        List<Products> records = page.getRecords();
+        List<ItemVO> voList = new ArrayList<>();
+        records.forEach(record -> {
+            ItemVO itemVO = new ItemVO();
+            BeanUtils.copyProperties(record, itemVO);
+            voList.add(itemVO);
+        });
+
+        return voList;
     }
 }

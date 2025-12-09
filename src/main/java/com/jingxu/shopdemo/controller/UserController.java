@@ -26,7 +26,6 @@ public class UserController {
 
     @PostMapping
     public Result singIn(@RequestBody UserDto userDto , HttpSession session){
-
         return userService.logIn(userDto,session);
     }
 

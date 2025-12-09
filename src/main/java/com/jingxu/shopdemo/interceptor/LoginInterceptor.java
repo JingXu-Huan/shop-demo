@@ -13,8 +13,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @RequiredArgsConstructor
 public class LoginInterceptor implements HandlerInterceptor {
 
-    private final JdbcTemplate jdbcTemplate;
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession(false);
@@ -33,13 +31,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         // 保存用户 ID 到 ThreadLocal
         UserContext.set(userId);
-
-//        // 可选：检查登录状态
-//        Integer count = jdbcTemplate.queryForObject(
-//                "select count(*) from user_signin where userId = ?", Integer.class, userId);
-//        if (count == null || count == 0) {
-//            // 首次登录或未签到逻辑
-//        }
         return true;
     }
 

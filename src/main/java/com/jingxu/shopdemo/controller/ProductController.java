@@ -8,6 +8,8 @@ import com.jingxu.shopdemo.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author jingxu
  * @version 1.0.0
@@ -19,19 +21,29 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     private final ProductService productService;
 
-    /**对于单商品直接下单时，调用此接口*/
+    /**
+     * 对于单商品直接下单时，调用此接口
+     */
     @PostMapping("/one")
     public Result orderItems(@RequestBody ProductDto productDto) {
         return productService.orderItems(productDto);
     }
-    /**对于多商品直接下单时，调用此接口*/
+
+    /**
+     * 对于多商品直接下单时，调用此接口
+     */
     @PostMapping("/list")
-    public Result orderItemsByList(@RequestBody ProductListDto productListDto){
+    public Result orderItemsByList(@RequestBody ProductListDto productListDto) {
         return productService.orderItemsByList(productListDto);
     }
 
-    @GetMapping
-    public ItemVO queryAllItem(){
+    /**
+     * 用户浏览商品接口
+     */
+    @GetMapping("/queryAll")
+    public List<ItemVO> queryAllItem(@RequestParam(defaultValue = "1") int pageNum,
+                                     @RequestParam(defaultValue = "10") int pageSize) {
 
+        return productService.queryAllItem(pageNum,pageSize);
     }
 }

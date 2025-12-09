@@ -1,8 +1,8 @@
-package com.jingxu.shopdemo.domain.vo;
+package com.jingxu.shopdemo.domain.dto;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,11 +14,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class ItemVO {
-    Integer productId;
+public class ItemsDto {
     String name;
     String description;
-    Integer stock;
     BigDecimal price;
+    Integer stock;
+    LocalDateTime createdAt;
 }
