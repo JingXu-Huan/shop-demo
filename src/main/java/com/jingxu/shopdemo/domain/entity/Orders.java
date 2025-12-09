@@ -20,7 +20,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @TableName("orders")
-public class Orders extends Model<Orders> implements Serializable {
+public class Orders implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

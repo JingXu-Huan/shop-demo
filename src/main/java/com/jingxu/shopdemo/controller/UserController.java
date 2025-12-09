@@ -1,7 +1,6 @@
 package com.jingxu.shopdemo.controller;
 
 
-import com.jingxu.shopdemo.domain.dto.ProductDto;
 import com.jingxu.shopdemo.domain.dto.UserDto;
 import com.jingxu.shopdemo.domain.vo.Result;
 import com.jingxu.shopdemo.service.UserService;
@@ -28,7 +27,7 @@ public class UserController {
     @PostMapping
     public Result singIn(@RequestBody UserDto userDto , HttpSession session){
 
-        return userService.singIn(userDto,session);
+        return userService.logIn(userDto,session);
     }
 
 }

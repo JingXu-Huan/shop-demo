@@ -15,5 +15,5 @@ import jakarta.servlet.http.HttpSession;
 public interface UserService extends IService<Users> {
     Result singUp(UserDto userDto);
 
-    Result singIn(UserDto userDto, HttpSession httpSession);
+    Result logIn(UserDto userDto, HttpSession httpSession);
 }

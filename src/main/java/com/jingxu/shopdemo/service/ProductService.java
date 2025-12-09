@@ -17,4 +17,6 @@ public interface ProductService extends IService<Products> {
     Result orderItems(ProductDto productDto);
 
     Result orderItemsByList(ProductListDto productListDto);
+
+    String findName(Integer productId);
 }

@@ -21,9 +21,8 @@ import lombok.experimental.Accessors;
  */
 @Data
 @NoArgsConstructor
-@Accessors(chain = true)
 @TableName("products")
-public class Products extends Model<Products> implements Serializable {
+public class Products implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

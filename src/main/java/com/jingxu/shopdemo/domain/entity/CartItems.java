@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @TableName("cart_items")
-public class CartItems extends Model<CartItems> implements Serializable{
+public class CartItems implements Serializable{
     @Serial
     private static final long serialVersionUID = 1L;
 

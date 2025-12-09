@@ -8,6 +8,8 @@ import com.jingxu.shopdemo.domain.entity.OrderItems;
 import com.jingxu.shopdemo.domain.entity.Orders;
 import com.jingxu.shopdemo.domain.entity.Products;
 import com.jingxu.shopdemo.domain.vo.Result;
+import com.jingxu.shopdemo.exception.BusinessException;
+import com.jingxu.shopdemo.exception.FailCodeEnums;
 import com.jingxu.shopdemo.mapper.OrderItemsMapper;
 import com.jingxu.shopdemo.mapper.OrdersMapper;
 import com.jingxu.shopdemo.mapper.ProductsMapper;
@@ -33,7 +35,7 @@ import java.util.concurrent.Executors;
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> implements ProductService {
-
+    /*开一个五个线程的线程池*/
     public static final ExecutorService pool = Executors.newFixedThreadPool(5);
     private final OrdersMapper ordersMapper;
     private final OrderItemsMapper orderItemsMapper;
@@ -78,13 +80,24 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
         return Result.ok("下单成功");
     }
 
+    /**
+     * 此方法会在异步线程中开启任务,完成订单表的写入和订单详情表的写入。
+     *
+     * @param userId    用户的ID
+     * @param total     所有商品的总金额
+     * @param productId 当前要处理的订单id
+     * @param num1      当前订单下的商品总数
+     * @param price     当前订单下的商品总金额
+     *
+     */
     private void Async(Integer userId, BigDecimal total, Integer productId, int num1, BigDecimal price) {
         pool.submit(() -> {
             //写入订单表
             log.debug("用户id {}", UserContext.get());
             UserContext.set(userId);
             log.debug("用户id {}", UserContext.get());
-            Orders orders = new Orders().setUserId(UserContext.get())
+            Orders orders = new Orders()
+                    .setUserId(UserContext.get())
                     .setStatus("未支付")
                     .setTotalAmount(total)
                     .setCreatedAt(LocalDateTime.now());
@@ -106,38 +119,47 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
     public Result orderItemsByList(ProductListDto productListDto) {
         Integer userId = UserContext.get();
         List<ProductDto> items = productListDto.getItems();
-
+        if (items == null || items.isEmpty()) {
+            return Result.fail("购物车为空");
+        }
+        // 计算总金额 & 检查库存
         BigDecimal total = BigDecimal.ZERO;
         for (ProductDto item : items) {
-            BigDecimal price = this.lambdaQuery()
+            Products product = this.lambdaQuery()
                     .eq(Products::getProductId, item.getProductId())
-                    .one()
-                    .getPrice();
-            BigDecimal nums1 = BigDecimal.valueOf(item.getNums());
-            total = total.add(price.multiply(nums1));
-        }
-
-        BigDecimal finalTotal = total;
-        items.forEach(item -> {
-            Integer productId = item.getProductId();
-            int nums = item.getNums();
-            Integer stock = this.lambdaQuery().eq(Products::getProductId, productId).one().getStock();
-            if (nums >= stock) {
-                log.warn("{}库存不足", productId);
-                return;
-
-            } else {
-                //计算金额
-                BigDecimal price = this.lambdaQuery()
-                        .eq(Products::getProductId, productId).one().getPrice();
-                BigDecimal money = BigDecimal.valueOf(nums).multiply(price);
-                //扣减数据库库存
-                this.lambdaUpdate().eq(Products::getProductId, productId)
-                        .setSql("stock = stock - " + nums).update();
-                Async(userId, finalTotal, productId, nums, money);
+                    .one();
+            if (item.getNums() > product.getStock()) {
+                throw new BusinessException(FailCodeEnums.STOCK_NOT_ENOUGH, "商品数量不足");
             }
-
-        });
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(item.getNums())));
+        }
+        // 1️⃣ 生成订单
+        Orders orders = new Orders()
+                .setUserId(userId)
+                .setStatus("未支付")
+                .setTotalAmount(total)
+                .setCreatedAt(LocalDateTime.now());
+        ordersMapper.insert(orders);
+        Integer orderId = orders.getOrderId();
+        // 2️⃣ 扣减库存 & 写入订单明细
+        for (ProductDto item : items) {
+            this.lambdaUpdate()
+                    .eq(Products::getProductId, item.getProductId())
+                    .setSql("stock = stock - " + item.getNums())
+                    .update();
+            OrderItems orderItem = new OrderItems()
+                    .setOrderId(orderId)
+                    .setProductId(item.getProductId())
+                    .setQuantity(item.getNums())
+                    .setPrice(this.lambdaQuery()
+                            .eq(Products::getProductId, item.getProductId())
+                            .one().getPrice());
+            orderItemsMapper.insert(orderItem);
+        }
         return Result.ok("下单成功");
+    }
+
+    public String findName(Integer productId){
+        return this.lambdaQuery().eq(Products::getProductId,productId).one().getName();
     }
 }

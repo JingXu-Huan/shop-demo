@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/order/**") // 需要登录的路径
+                .addPathPatterns("/order/**","/cart/**","/ordered/**") // 需要登录的路径
                 .excludePathPatterns("/user"); // 不需要登录的路径
     }
 }

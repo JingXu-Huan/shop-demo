@@ -2,13 +2,11 @@ package com.jingxu.shopdemo.controller;
 
 import com.jingxu.shopdemo.domain.dto.ProductDto;
 import com.jingxu.shopdemo.domain.dto.ProductListDto;
+import com.jingxu.shopdemo.domain.vo.ItemVO;
 import com.jingxu.shopdemo.domain.vo.Result;
 import com.jingxu.shopdemo.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author jingxu
@@ -30,5 +28,10 @@ public class ProductController {
     @PostMapping("/list")
     public Result orderItemsByList(@RequestBody ProductListDto productListDto){
         return productService.orderItemsByList(productListDto);
+    }
+
+    @GetMapping
+    public ItemVO queryAllItem(){
+
     }
 }

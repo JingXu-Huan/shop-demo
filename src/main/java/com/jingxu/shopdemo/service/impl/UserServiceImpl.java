@@ -53,7 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
     }
 
     @Override
-    public Result singIn(UserDto userDto,HttpSession session) {
+    public Result logIn(UserDto userDto, HttpSession session) {
         if (userDto == null) {
             return null;
         }
