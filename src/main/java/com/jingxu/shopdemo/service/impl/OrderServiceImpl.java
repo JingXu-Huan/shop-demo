@@ -17,8 +17,6 @@ import com.jingxu.shopdemo.utils.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +57,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderItemsMapper, OrderItems> 
             allOrderItems.addAll(items);
             items.forEach(item -> allProductIds.add(item.getProductId()));
         });
+        if (allOrderItems.isEmpty()) {
+            return orderShowVO;
+        }
         // 批量查询商品
-        List<Products> productsList = productsMapper.selectBatchIds(allProductIds);
+        List<Products> productsList = allProductIds.isEmpty()
+                ? new ArrayList<>()
+                : productsMapper.selectBatchIds(allProductIds);
         // 用 Map 快速查找
         Map<Integer, Products> productMap = productsList.stream()
                 .collect(Collectors.toMap(p -> p.getProductId(), p -> p));

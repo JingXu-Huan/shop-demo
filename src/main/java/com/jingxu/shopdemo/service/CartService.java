@@ -19,5 +19,4 @@ public interface CartService extends IService<CartItems> {
     Result addCartItems(CartItemDto cartItemDto);
 
     List<CartVO> queryAllCartItem();
-
 }

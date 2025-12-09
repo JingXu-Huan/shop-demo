@@ -19,7 +19,9 @@ import java.util.List;
 public interface OrdersMapper extends BaseMapper<Orders> {
     @Update({
             "<script>",
-            "update orders set status = '已发货' where order_id in",
+            "update orders",
+            "set status = '已发货'",
+            "where order_id in",
             "<foreach collection='ids' item='id' open='(' separator=',' close=')'>",
             "#{id}",
             "</foreach>",

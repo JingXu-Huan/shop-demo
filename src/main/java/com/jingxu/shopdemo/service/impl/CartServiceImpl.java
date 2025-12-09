@@ -36,6 +36,9 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
         if (cartItemDto != null && userId != null) {
             Integer productId = cartItemDto.getProductId();
             Integer quantity = cartItemDto.getQuantity();
+            if (productId == null || quantity == null || quantity <= 0) {
+                return Result.fail("商品信息不完整");
+            }
             CartItems cartItems = new CartItems()
                     .setQuantity(quantity)
                     .setAddedAt(LocalDateTime.now())
@@ -72,4 +75,6 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
         }
         return new ArrayList<>();
     }
+
+
 }

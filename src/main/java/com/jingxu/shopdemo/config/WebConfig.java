@@ -21,6 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "/admin/add",
                         "/admin/delivery",
                         "/admin/query") // 需要登录的路径
-                .excludePathPatterns("/user","/order/queryAll","/admin/login"); // 不需要登录的路径
+                .excludePathPatterns("/user", "/order/queryAll", "/admin/login"); // 不需要登录的路径
     }
 }

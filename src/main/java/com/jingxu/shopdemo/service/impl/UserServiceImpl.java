@@ -35,7 +35,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
         if (userDto == null) {
             return null;
         }
-        Users one = this.lambdaQuery().select(Users::getUsername).one();
+        Users one = this.lambdaQuery().eq(Users::getUsername,userDto.getUsername()).one();
         if (one != null) {
             return Result.fail("用户已经注册");
         }

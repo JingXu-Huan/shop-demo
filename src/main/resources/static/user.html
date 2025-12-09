@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Demo · 用户端</title>
+  <style>
+    :root { font-family: "Segoe UI","PingFang SC",Arial,sans-serif; color: #1f2937; background: #f6f8fb; }
+    body { margin: 0; padding: 0; }
+    header { background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; padding: 18px 20px 22px; }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 6px 0 0; opacity: .9; }
+    nav { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    nav a { color: #e0e7ff; text-decoration: none; padding: 6px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 32px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 16px; }
+    section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    h2 { margin: 0 0 10px; font-size: 17px; }
+    form { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 10px 12px; align-items: end; }
+    label { font-size: 13px; color: #4b5563; display: grid; gap: 6px; }
+    input { padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 8px; background: #f9fafb; }
+    input:focus { outline: 2px solid #bfdbfe; border-color: #93c5fd; background: #fff; }
+    button { padding: 10px 12px; border: none; border-radius: 10px; background: #2563eb; color: #fff; cursor: pointer; font-weight: 600; }
+    button.secondary { background: #6b7280; }
+    .list { display: grid; gap: 10px; margin-top: 10px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #e0f2fe; color: #075985; font-size: 12px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    #toast { position: fixed; top: 14px; right: 14px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; transition: opacity .3s; max-width: 320px; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Shop Demo · 用户端</h1>
+    <p>浏览商品 / 加购 / 下单 / 查订单</p>
+    <nav>
+      <a href="/user.html">用户端</a>
+      <a href="/admin.html">管理端</a>
+      <a href="javascript:void 0" onclick="checkLogin()">检查登录</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section>
+        <h2>注册</h2>
+        <form id="signupForm">
+          <label>用户名<input name="username" required></label>
+          <label>密码<input name="password" type="password" required></label>
+          <label>邮箱<input name="email"></label>
+          <button type="submit">注册</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>登录</h2>
+        <form id="loginForm">
+          <label>用户名<input name="username" required></label>
+          <label>密码<input name="password" type="password" required></label>
+          <button type="submit">登录</button>
+        </form>
+      </section>
+    </div>
+
+    <section>
+      <h2>商品列表</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <label>页码<input id="pageNum" type="number" value="1" min="1"></label>
+        <label>每页大小<input id="pageSize" type="number" value="10" min="1"></label>
+        <button onclick="loadProducts()">刷新列表</button>
+      </div>
+      <div id="products" class="list"></div>
+    </section>
+
+    <div class="grid">
+      <section>
+        <h2>加入购物车</h2>
+        <form id="addCartForm">
+          <label>商品ID<input name="productId" type="number" required></label>
+          <label>数量<input name="quantity" type="number" value="1" min="1" required></label>
+          <button type="submit">加入购物车</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>直接下单</h2>
+        <form id="orderForm">
+          <label>商品ID<input name="productId" type="number" required></label>
+          <label>数量<input name="nums" type="number" value="1" min="1" required></label>
+          <button type="submit">下单</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section>
+        <h2>购物车</h2>
+        <button onclick="loadCart()">刷新购物车</button>
+        <div id="cart" class="list" style="margin-top:10px;"></div>
+      </section>
+
+      <section>
+        <h2>我的订单</h2>
+        <button onclick="loadOrders()">刷新订单</button>
+        <div id="orders" class="list" style="margin-top:10px;"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    const toastEl = document.getElementById('toast');
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>toastEl.classList.remove('show'),2200);
+    }
+    async function api(path, {method='GET', body}={}) {
+      const opts = {method, credentials:'include', headers:{}};
+      if (body !== undefined) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
+      const res = await fetch(path, opts);
+      let data;
+      try { data = await res.json(); } catch(e){ data = await res.text(); }
+      if(!res.ok) throw new Error(typeof data==='string'?data:(data.msg||data.message||'请求失败'));
+      return data;
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const payload = Object.fromEntries(new FormData(e.target).entries());
+      try { const r = await api('/user',{method:'PUT',body:payload}); toast(r.msg||'注册成功'); }
+      catch(err){ toast(err.message); }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const payload = Object.fromEntries(new FormData(e.target).entries());
+      try { const r = await api('/user',{method:'POST',body:payload}); toast(r.msg||'登录成功'); }
+      catch(err){ toast(err.message||'登录失败'); }
+    });
+
+    async function loadProducts(){
+      const pageNum = document.getElementById('pageNum').value||1;
+      const pageSize = document.getElementById('pageSize').value||10;
+      try{
+        const list = await api(`/order/queryAll?pageNum=${pageNum}&pageSize=${pageSize}`);
+        document.getElementById('products').innerHTML = list.map(p=>`
+          <div class="card">
+            <div><strong>${p.name}</strong> <span class="badge">ID ${p.productId}</span></div>
+            <div class="muted">${p.description||''}</div>
+            <div style="margin-top:6px;">价格：${p.price} | 库存：${p.stock}</div>
+            <button style="margin-top:6px;" onclick="addToCartQuick(${p.productId})">加购</button>
+          </div>
+        `).join('');
+      }catch(err){ toast('商品加载失败: '+err.message); }
+    }
+
+    document.getElementById('addCartForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const productId = Number(form.get('productId'));
+      const quantity = Number(form.get('quantity'));
+      try{ const r = await api('/cart/add',{method:'PUT',body:{productId,quantity}}); toast(r.msg||'已加入购物车'); }
+      catch(err){ toast(err.message); }
+    });
+    function addToCartQuick(id){ document.querySelector('#addCartForm input[name=productId]').value=id; document.querySelector('#addCartForm input[name=quantity]').value=1; document.getElementById('addCartForm').requestSubmit(); }
+
+    document.getElementById('orderForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const payload = {productId:Number(form.get('productId')), nums:Number(form.get('nums'))};
+      try{ const r = await api('/order/one',{method:'POST',body:payload}); toast(r.msg||'下单成功'); }
+      catch(err){ toast(err.message); }
+    });
+
+    async function loadCart(){
+      try{
+        const items = await api('/cart/queryAll');
+        if(!items.length){ document.getElementById('cart').innerHTML='<div class="muted">购物车为空</div>'; return; }
+        document.getElementById('cart').innerHTML = items.map(it=>`
+          <div class="card">
+            <div><strong>${it.name||('商品 '+(it.product_id||''))}</strong></div>
+            <div class="muted">数量：${it.quantity??0}</div>
+            <div class="muted">加入时间：${it.added_at||''}</div>
+          </div>
+        `).join('');
+      }catch(err){ toast('加载购物车失败: '+err.message); }
+    }
+
+    async function loadOrders(){
+      try{
+        const data = await api('/ordered/queryAll');
+        const list = data?.voList||[];
+        if(!list.length){ document.getElementById('orders').innerHTML='<div class="muted">暂无订单</div>'; return; }
+        document.getElementById('orders').innerHTML = list.map(o=>{
+          const items = Array.isArray(o.itemsList) ? o.itemsList : [];
+          const itemsHtml = items.length
+            ? `<div class="muted">商品明细：</div>
+               <ul style="margin:6px 0 0 0;padding-left:18px;">
+                 ${items.map(it=>`
+                   <li class="muted">
+                     ${it.name || ('商品 ' + (it.productId ?? ''))}
+                     × ${it.stock ?? 0}
+                     （单价：${it.price ?? ''}）
+                   </li>
+                 `).join('')}
+               </ul>`
+            : '<div class="muted">无商品明细</div>';
+
+          return `
+            <div class="card">
+              <div><strong>订单 ${o.orderId}</strong> <span class="badge">${o.status}</span></div>
+              <div class="muted">总额：${o.total} | 下单时间：${o.orderedTime||''}</div>
+              ${itemsHtml}
+            </div>
+          `;
+        }).join('');
+      }catch(err){ toast('加载订单失败: '+err.message); }
+    }
+
+    async function checkLogin(){
+      try{ await api('/cart/queryAll'); toast('已登录'); }catch(err){ toast('未登录或已失效'); }
+    }
+
+    loadProducts().catch(()=>{});
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Demo · 管理端</title>
+  <style>
+    :root { font-family: "Segoe UI","PingFang SC",Arial,sans-serif; color: #1f2937; background: #f6f8fb; }
+    body { margin: 0; padding: 0; }
+    header { background: linear-gradient(135deg,#10b981,#059669); color: #fff; padding: 18px 20px 22px; }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 6px 0 0; opacity: .9; }
+    nav { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    nav a { color: #d1fae5; text-decoration: none; padding: 6px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 32px; }
+    section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 16px; }
+    h2 { margin: 0 0 10px; font-size: 17px; }
+    form { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 10px 12px; align-items: end; }
+    label { font-size: 13px; color: #4b5563; display: grid; gap: 6px; }
+    input, textarea { padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 8px; background: #f9fafb; }
+    input:focus, textarea:focus { outline: 2px solid #a7f3d0; border-color: #6ee7b7; background: #fff; }
+    button { padding: 10px 12px; border: none; border-radius: 10px; background: #10b981; color: #fff; cursor: pointer; font-weight: 600; }
+    .list { display: grid; gap: 10px; margin-top: 10px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #ecfeff; color: #0f766e; font-size: 12px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    #toast { position: fixed; top: 14px; right: 14px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; transition: opacity .3s; max-width: 320px; }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Shop Demo · 管理端</h1>
+    <p>上架商品 / 查看订单 / 发货</p>
+    <nav>
+      <a href="/user.html">用户端</a>
+      <a href="/admin.html">管理端</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>管理员登录</h2>
+      <form id="adminLoginForm">
+        <label>用户名<input name="username" required></label>
+        <label>密码<input name="password" type="password" required></label>
+        <button type="submit">登录</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>上架新商品</h2>
+      <form id="addProductForm">
+        <label>名称<input name="name" required></label>
+        <label>描述<textarea name="description" rows="2"></textarea></label>
+        <label>价格<input name="price" type="number" step="0.01" required></label>
+        <label>库存<input name="stock" type="number" min="0" required></label>
+        <button type="submit">上架</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>所有订单</h2>
+      <button onclick="loadAllOrders()">刷新订单</button>
+      <div id="orders" class="list" style="margin-top:10px;"></div>
+    </section>
+
+    <section>
+      <h2>批量发货</h2>
+      <form id="deliveryForm">
+        <label>订单ID（逗号分隔）<input name="ids" placeholder="1,2,3"></label>
+        <button type="submit">发货</button>
+      </form>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    const toastEl = document.getElementById('toast');
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>toastEl.classList.remove('show'),2200);
+    }
+    async function api(path,{method='GET',body}={}) {
+      const opts={method,credentials:'include',headers:{}};
+      if(body!==undefined){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body);}
+      const res=await fetch(path,opts);
+      let data;try{data=await res.json();}catch(e){data=await res.text();}
+      if(!res.ok) throw new Error(typeof data==='string'?data:(data.msg||data.message||'请求失败'));
+      return data;
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const payload=Object.fromEntries(new FormData(e.target).entries());
+      try{const r=await api('/admin/login',{method:'POST',body:payload}); toast(r.msg||'管理员登录成功');}
+      catch(err){toast(err.message||'登录失败');}
+    });
+
+    document.getElementById('addProductForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const fd=new FormData(e.target);
+      const product={name:fd.get('name'),description:fd.get('description'),price:Number(fd.get('price')),stock:Number(fd.get('stock'))};
+      try{const r=await api('/admin/add',{method:'PUT',body:[product]}); toast(r.msg||'上架成功');}
+      catch(err){toast(err.message||'上架失败');}
+    });
+
+    async function loadAllOrders(){
+      try{
+        const list=await api('/admin/query');
+        if(!list.length){document.getElementById('orders').innerHTML='<div class="muted">暂无订单</div>';return;}
+        document.getElementById('orders').innerHTML=list.map(o=>`
+          <div class="card">
+            <div><strong>订单 ${o.orderId}</strong> <span class="badge">${o.status}</span></div>
+            <div class="muted">用户：${o.userId} | 总额：${o.totalAmount}</div>
+            <div class="muted">创建时间：${o.createdAt||''}</div>
+          </div>
+        `).join('');
+      }catch(err){toast('加载订单失败: '+err.message);}
+    }
+
+    document.getElementById('deliveryForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const raw=new FormData(e.target).get('ids')||'';
+      const ids=raw.split(',').map(s=>s.trim()).filter(Boolean).map(Number);
+      if(!ids.length){toast('请填写订单ID');return;}
+      try{const r=await api('/admin/delivery',{method:'POST',body:ids}); toast(r.msg||'发货成功');}
+      catch(err){toast(err.message||'发货失败');}
+    });
+  </script>
+</body>
+</html>
+
