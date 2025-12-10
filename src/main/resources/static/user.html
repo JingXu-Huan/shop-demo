@@ -98,7 +98,7 @@
       <section>
         <h2>加入购物车</h2>
         <form id="addCartForm">
-          <label>商品ID<input name="productId" type="number" required></label>
+          <label>商品ID<input name="productId" type="text" required></label>
           <label>数量<input name="quantity" type="number" value="1" min="1" required></label>
           <button type="submit">加入购物车</button>
         </form>
@@ -107,7 +107,7 @@
       <section>
         <h2>直接下单</h2>
         <form id="orderForm">
-          <label>商品ID<input name="productId" type="number" required></label>
+          <label>商品ID<input name="productId" type="text" required></label>
           <label>数量<input name="nums" type="number" value="1" min="1" required></label>
           <button type="submit">下单</button>
         </form>
@@ -176,7 +176,7 @@
             <div><strong>${p.name}</strong> <span class="badge">ID ${p.productId}</span></div>
             <div class="muted">${p.description||''}</div>
             <div style="margin-top:6px;">价格：${p.price} | 库存：${p.stock}</div>
-            <button style="margin-top:6px;" onclick="addToCartQuick(${p.productId})">加购</button>
+            <button style="margin-top:6px;" onclick="addToCartQuick('${p.productId}')">加购</button>
           </div>
         `).join('');
       }catch(err){ toast('商品加载失败: '+err.message); }
@@ -185,7 +185,7 @@
     document.getElementById('addCartForm').addEventListener('submit', async e=>{
       e.preventDefault();
       const form = new FormData(e.target);
-      const productId = Number(form.get('productId'));
+      const productId = form.get('productId');
       const quantity = Number(form.get('quantity'));
       try{ const r = await api('/cart/add',{method:'PUT',body:{productId,quantity}}); toast(r.msg||'已加入购物车'); }
       catch(err){ toast(err.message); }
@@ -195,7 +195,7 @@
     document.getElementById('orderForm').addEventListener('submit', async e=>{
       e.preventDefault();
       const form = new FormData(e.target);
-      const payload = {productId:Number(form.get('productId')), nums:Number(form.get('nums'))};
+      const payload = {productId:form.get('productId'), nums:Number(form.get('nums'))};
       try{ const r = await api('/order/one',{method:'POST',body:payload}); toast(r.msg||'下单成功'); }
       catch(err){ toast(err.message); }
     });
