@@ -67,6 +67,7 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
                 Integer quantity = item.getQuantity();
                 String name = productService.findName(productId);
                 cartVO.setName(name);
+                cartVO.setProduct_id(productId);
                 cartVO.setAdded_at(addedAt);
                 cartVO.setQuantity(quantity);
                 listVo.add(cartVO);

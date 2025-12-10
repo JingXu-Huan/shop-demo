@@ -1,10 +1,12 @@
 package com.jingxu.shopdemo.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jingxu.shopdemo.domain.dto.ProductDto;
 import com.jingxu.shopdemo.domain.dto.ProductListDto;
+import com.jingxu.shopdemo.domain.entity.CartItems;
 import com.jingxu.shopdemo.domain.entity.OrderItems;
 import com.jingxu.shopdemo.domain.entity.Orders;
 import com.jingxu.shopdemo.domain.entity.Products;
@@ -12,6 +14,7 @@ import com.jingxu.shopdemo.domain.vo.ItemVO;
 import com.jingxu.shopdemo.domain.vo.Result;
 import com.jingxu.shopdemo.exception.BusinessException;
 import com.jingxu.shopdemo.exception.FailCodeEnums;
+import com.jingxu.shopdemo.mapper.CartItemsMapper;
 import com.jingxu.shopdemo.mapper.OrderItemsMapper;
 import com.jingxu.shopdemo.mapper.OrdersMapper;
 import com.jingxu.shopdemo.mapper.ProductsMapper;
@@ -41,6 +44,7 @@ import java.util.concurrent.Executors;
 public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> implements ProductService {
     /*开一个五个线程的线程池*/
     public static final ExecutorService pool = Executors.newFixedThreadPool(5);
+    private final CartItemsMapper cartItemsMapper;
     private final OrdersMapper ordersMapper;
     private final OrderItemsMapper orderItemsMapper;
 
@@ -86,6 +90,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
 
     /**
      * 此方法会在异步线程中开启任务,完成订单表的写入和订单详情表的写入。
+     *
      * @param userId    用户的ID
      * @param total     所有商品的总金额
      * @param productId 当前要处理的订单id
@@ -136,7 +141,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
             }
             total = total.add(product.getPrice().multiply(BigDecimal.valueOf(item.getNums())));
         }
-        // 1️⃣ 生成订单
+        //生成订单
         Orders orders = new Orders()
                 .setUserId(userId)
                 .setStatus("未支付")
@@ -144,7 +149,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
                 .setCreatedAt(LocalDateTime.now());
         ordersMapper.insert(orders);
         Integer orderId = orders.getOrderId();
-        // 2️⃣ 扣减库存 & 写入订单明细
+        //扣减库存 & 写入订单明细
         for (ProductDto item : items) {
             this.lambdaUpdate()
                     .eq(Products::getProductId, item.getProductId())
@@ -159,6 +164,18 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
                             .one().getPrice());
             orderItemsMapper.insert(orderItem);
         }
+        // 清除购物车(若有)
+        List<Integer> ids = new ArrayList<>();
+        pool.submit(() -> {
+            items.forEach(it -> {
+                ids.add(it.getProductId());
+            });
+            for (Integer id : ids) {
+                LambdaQueryWrapper<CartItems> queryWrapper = new LambdaQueryWrapper<>();
+                queryWrapper.eq(CartItems::getProductId, id);
+                cartItemsMapper.delete(queryWrapper);
+            }
+        });
         return Result.ok("下单成功");
     }
 

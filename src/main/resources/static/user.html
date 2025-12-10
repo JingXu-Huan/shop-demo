@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop Demo · 用户端</title>
+  <title>优选商城 · 用户端</title>
   <style>
     :root { font-family: "Segoe UI","PingFang SC",Arial,sans-serif; color: #1f2937; background: #f6f8fb; }
     body { margin: 0; padding: 0; }
@@ -32,7 +32,7 @@
 </head>
 <body>
   <header>
-    <h1>Shop Demo · 用户端</h1>
+    <h1>优选商城 · 用户端</h1>
     <p>浏览商品 / 加购 / 下单 / 查订单</p>
     <nav>
       <a href="/user.html">用户端</a>
@@ -96,7 +96,10 @@
     <div class="grid">
       <section>
         <h2>购物车</h2>
-        <button onclick="loadCart()">刷新购物车</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+          <button onclick="loadCart()">刷新购物车</button>
+          <button class="secondary" onclick="orderCartItems()">购物车批量下单</button>
+        </div>
         <div id="cart" class="list" style="margin-top:10px;"></div>
       </section>
 
@@ -188,6 +191,23 @@
           </div>
         `).join('');
       }catch(err){ toast('加载购物车失败: '+err.message); }
+    }
+
+    async function orderCartItems(){
+      try{
+        const items = await api('/cart/queryAll');
+        if(!items.length){ toast('购物车为空，无法下单'); return; }
+        const payload = {
+          items: items.map(it=>({
+            productId: it.productId ?? it.product_id,
+            nums: it.quantity ?? 0
+          })).filter(x=>x.productId!=null && x.nums>0)
+        };
+        if(!payload.items.length){ toast('购物车数据异常，无法下单'); return; }
+        const r = await api('/order/list',{method:'POST',body:payload});
+        toast(r.msg || '批量下单成功');
+        await Promise.allSettled([loadOrders(), loadCart()]);
+      }catch(err){ toast('批量下单失败: '+(err.message||'未知错误')); }
     }
 
     async function loadOrders(){
