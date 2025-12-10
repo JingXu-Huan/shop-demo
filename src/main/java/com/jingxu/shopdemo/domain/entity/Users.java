@@ -31,7 +31,7 @@ public class Users extends Model<Users> implements Serializable {
      * userId
      */
     @TableId
-	private Integer userId;
+	private Long userId;
     /**
      * username
      */

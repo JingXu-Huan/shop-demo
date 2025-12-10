@@ -35,7 +35,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderItemsMapper, OrderItems> 
 
     @Override
     public OrderShowVO queryAllOrders() {
-        Integer userId = UserContext.get();
+        Long userId = UserContext.get();
         OrderShowVO orderShowVO = new OrderShowVO();
         if (userId == null) {
             return orderShowVO;
@@ -48,7 +48,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderItemsMapper, OrderItems> 
             return orderShowVO;
         }
         // 收集所有订单中的商品 ID，批量查询商品信息
-        List<Integer> allProductIds = new ArrayList<>();
+        List<Long> allProductIds = new ArrayList<>();
         List<OrderItems> allOrderItems = new ArrayList<>();
         ordersList.forEach(order -> {
             List<OrderItems> items = this.lambdaQuery()
@@ -65,7 +65,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderItemsMapper, OrderItems> 
                 ? new ArrayList<>()
                 : productsMapper.selectBatchIds(allProductIds);
         // 用 Map 快速查找
-        Map<Integer, Products> productMap = productsList.stream()
+        Map<Long, Products> productMap = productsList.stream()
                 .collect(Collectors.toMap(p -> p.getProductId(), p -> p));
 
         // 遍历订单，组装 OrdersVO

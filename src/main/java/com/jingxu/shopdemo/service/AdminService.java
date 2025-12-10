@@ -23,5 +23,5 @@ public interface AdminService extends IService<Admins> {
 
     List<Orders> queryAllUsersOrder();
 
-    Result delivery(List<Integer> ids);
+    Result delivery(List<Long> ids);
 }

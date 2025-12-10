@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -28,11 +30,12 @@ public class Orders implements Serializable {
      * orderId
      */
     @TableId
-	private Integer orderId;
+    @JsonSerialize(using = ToStringSerializer.class)
+	private Long orderId;
     /**
      * userId
      */
-    private Integer userId;
+    private Long userId;
     /**
      * totalAmount
      */

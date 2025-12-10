@@ -61,7 +61,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminsMapper, Admins> implemen
     @Override
     public List<Orders> queryAllUsersOrder() {
         List<Orders> orders = ordersMapper.selectList(new LambdaQueryWrapper<>());
-        Map<Integer, List<Orders>> collect = orders.stream().collect(Collectors.groupingBy(Orders::getUserId));
+        Map<Long, List<Orders>> collect = orders.stream().collect(Collectors.groupingBy(Orders::getUserId));
         return collect.values()
                 .stream()
                 .flatMap(List::stream)
@@ -70,7 +70,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminsMapper, Admins> implemen
 
     @Override
     @Transactional
-    public Result delivery(List<Integer> ids) {
+    public Result delivery(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return Result.fail("商品列表为空");
         }

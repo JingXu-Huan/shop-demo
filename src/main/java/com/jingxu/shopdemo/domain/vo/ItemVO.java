@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemVO {
-    Integer productId;
+    Long productId;
     String name;
     String description;
     Integer stock;

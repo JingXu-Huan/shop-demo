@@ -12,6 +12,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ProductDto {
-    Integer productId;
+    Long productId;
     int nums;
 }

@@ -19,12 +19,31 @@
     label { font-size: 13px; color: #4b5563; display: grid; gap: 6px; }
     input, textarea { padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 8px; background: #f9fafb; }
     input:focus, textarea:focus { outline: 2px solid #a7f3d0; border-color: #6ee7b7; background: #fff; }
-    button { padding: 10px 12px; border: none; border-radius: 10px; background: #10b981; color: #fff; cursor: pointer; font-weight: 600; }
+    button {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 10px;
+      background: #10b981;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color .18s ease, transform .12s ease, box-shadow .18s ease;
+      box-shadow: 0 4px 10px rgba(16,185,129,0.25);
+    }
+    button:hover {
+      background: #059669;
+      box-shadow: 0 6px 16px rgba(16,185,129,0.32);
+      transform: translateY(-1px);
+    }
+    button:active {
+      transform: translateY(0) scale(0.97);
+      box-shadow: 0 2px 6px rgba(15,118,110,0.35);
+    }
     .list { display: grid; gap: 10px; margin-top: 10px; }
     .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #ecfeff; color: #0f766e; font-size: 12px; }
     .muted { color: #6b7280; font-size: 13px; }
-    #toast { position: fixed; top: 14px; right: 14px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; transition: opacity .3s; max-width: 320px; }
+    #toast { position: fixed; top: 14px; right: 14px; background: #111827; color: #fff; padding: 10px 12px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; transition: opacity .3s, transform .18s ease; max-width: 320px; }
     #toast.show { opacity: 1; }
   </style>
 </head>
@@ -125,7 +144,7 @@
     document.getElementById('deliveryForm').addEventListener('submit', async e=>{
       e.preventDefault();
       const raw=new FormData(e.target).get('ids')||'';
-      const ids=raw.split(',').map(s=>s.trim()).filter(Boolean).map(Number);
+      const ids=raw.split(',').map(s=>s.trim()).filter(Boolean);
       if(!ids.length){toast('请填写订单ID');return;}
       try{const r=await api('/admin/delivery',{method:'POST',body:ids}); toast(r.msg||'发货成功');}
       catch(err){toast(err.message||'发货失败');}

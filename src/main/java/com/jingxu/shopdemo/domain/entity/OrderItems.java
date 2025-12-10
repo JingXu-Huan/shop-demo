@@ -29,15 +29,15 @@ public class OrderItems extends Model<OrderItems> implements Serializable {
      * orderItemId
      */
     @TableId
-	private Integer orderItemId;
+	private Long orderItemId;
     /**
      * orderId
      */
-    private Integer orderId;
+    private Long orderId;
     /**
      * productId
      */
-    private Integer productId;
+    private Long productId;
     /**
      * quantity
      */

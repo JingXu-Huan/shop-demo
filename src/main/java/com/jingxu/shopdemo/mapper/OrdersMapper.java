@@ -27,6 +27,6 @@ public interface OrdersMapper extends BaseMapper<Orders> {
             "</foreach>",
             "</script>"
     })
-    void deliveryAll(@Param("ids") List<Integer> ids);
+    void deliveryAll(@Param("ids") List<Long> ids);
 
 }

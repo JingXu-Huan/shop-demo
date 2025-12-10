@@ -58,7 +58,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
         if (productDto == null) {
             return Result.fail("商品信息为空");
         }
-        Integer productId = productDto.getProductId();
+        Long productId = productDto.getProductId();
         int num1 = productDto.getNums();
         BigDecimal num = BigDecimal.valueOf(productDto.getNums());
         Integer stock = this.lambdaQuery()
@@ -70,7 +70,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
                 .select(Products::getPrice)
                 .one().getPrice();
         BigDecimal total = num.multiply(price);
-        Integer userId = UserContext.get();
+        Long userId = UserContext.get();
         System.out.println(userId);
         if (stock >= num1) {
             try {
@@ -98,7 +98,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
      * @param price     当前订单下的商品总金额
      *
      */
-    private void Async(Integer userId, BigDecimal total, Integer productId, int num1, BigDecimal price) {
+    private void Async(Long userId, BigDecimal total, Long productId, int num1, BigDecimal price) {
         pool.submit(() -> {
             //写入订单表
             log.debug("用户id {}", UserContext.get());
@@ -111,7 +111,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
                     .setCreatedAt(LocalDateTime.now());
             ordersMapper.insert(orders);
             //返回自增主键
-            Integer orderId = orders.getOrderId();
+            Long orderId = orders.getOrderId();
             //写入订单明细表
             OrderItems items = new OrderItems()
                     .setOrderId(orderId)
@@ -125,7 +125,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
     @Override
     @Transactional
     public Result orderItemsByList(ProductListDto productListDto) {
-        Integer userId = UserContext.get();
+        Long userId = UserContext.get();
         List<ProductDto> items = productListDto.getItems();
         if (items == null || items.isEmpty()) {
             return Result.fail("购物车为空");
@@ -148,7 +148,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
                 .setTotalAmount(total)
                 .setCreatedAt(LocalDateTime.now());
         ordersMapper.insert(orders);
-        Integer orderId = orders.getOrderId();
+        Long orderId = orders.getOrderId();
         //扣减库存 & 写入订单明细
         for (ProductDto item : items) {
             this.lambdaUpdate()
@@ -165,12 +165,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
             orderItemsMapper.insert(orderItem);
         }
         // 清除购物车(若有)
-        List<Integer> ids = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
         pool.submit(() -> {
             items.forEach(it -> {
                 ids.add(it.getProductId());
             });
-            for (Integer id : ids) {
+            for (Long id : ids) {
                 LambdaQueryWrapper<CartItems> queryWrapper = new LambdaQueryWrapper<>();
                 queryWrapper.eq(CartItems::getProductId, id);
                 cartItemsMapper.delete(queryWrapper);
@@ -179,7 +179,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
         return Result.ok("下单成功");
     }
 
-    public String findName(Integer productId) {
+    public String findName(Long productId) {
         return this.lambdaQuery().eq(Products::getProductId, productId).one().getName();
     }
 

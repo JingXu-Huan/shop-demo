@@ -27,7 +27,7 @@ public class Admins extends Model<Admins> implements Serializable{
      * adminId
      */
     @TableId
-	private Integer adminId;
+	private Long adminId;
     /**
      * username
      */

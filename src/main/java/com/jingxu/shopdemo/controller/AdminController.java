@@ -51,7 +51,7 @@ public class AdminController {
      * 管理员发货
      */
     @PostMapping("/delivery")
-    public Result delivery(@RequestBody List<Integer> ids) {
+    public Result delivery(@RequestBody List<Long> ids) {
         return adminService.delivery(ids);
     }
 }

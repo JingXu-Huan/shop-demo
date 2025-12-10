@@ -30,7 +30,7 @@ public class Products implements Serializable {
      * productId
      */
     @TableId
-	private Integer productId;
+	private Long productId;
     /**
      * name
      */

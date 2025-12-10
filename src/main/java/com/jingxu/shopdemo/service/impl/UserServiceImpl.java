@@ -63,7 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
         Users users = this.lambdaQuery().eq(Users::getUsername, username).one();
         if (users != null) {
             if (users.getPassword().equals(password)) {
-                Integer userId = users.getUserId();
+                Long userId = users.getUserId();
                 UserContext.set(userId);
                 session.setAttribute("userId",userId);
                 Integer count = jdbcTemplate.queryForObject(Utils.querySql, Integer.class,userId);

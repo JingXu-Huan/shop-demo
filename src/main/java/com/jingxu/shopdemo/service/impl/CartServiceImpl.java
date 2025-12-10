@@ -32,9 +32,9 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
 
     @Override
     public Result addCartItems(CartItemDto cartItemDto) {
-        Integer userId = UserContext.get();
+        Long userId = UserContext.get();
         if (cartItemDto != null && userId != null) {
-            Integer productId = cartItemDto.getProductId();
+            Long productId = cartItemDto.getProductId();
             Integer quantity = cartItemDto.getQuantity();
             if (productId == null || quantity == null || quantity <= 0) {
                 return Result.fail("商品信息不完整");
@@ -56,13 +56,13 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
 
     @Override
     public List<CartVO> queryAllCartItem() {
-        Integer userId = UserContext.get();
+        Long userId = UserContext.get();
         if (userId != null) {
             List<CartVO> listVo = new ArrayList<>();
             List<CartItems> cartItems = this.lambdaQuery().eq(CartItems::getUserId, userId).list();
             cartItems.forEach(item -> {
                 CartVO cartVO = new CartVO();
-                Integer productId = item.getProductId();
+                Long productId = item.getProductId();
                 LocalDateTime addedAt = item.getAddedAt();
                 Integer quantity = item.getQuantity();
                 String name = productService.findName(productId);

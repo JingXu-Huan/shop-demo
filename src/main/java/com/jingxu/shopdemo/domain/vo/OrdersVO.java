@@ -1,6 +1,8 @@
 package com.jingxu.shopdemo.domain.vo;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,7 +16,8 @@ import java.util.List;
  */
 @Data
 public class OrdersVO {
-    Integer orderId;
+    @JsonSerialize(using = ToStringSerializer.class)
+    Long orderId;
     BigDecimal total;
     String status;
     LocalDateTime orderedTime;

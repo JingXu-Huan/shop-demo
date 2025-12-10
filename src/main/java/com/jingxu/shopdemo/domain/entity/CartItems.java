@@ -30,15 +30,15 @@ public class CartItems implements Serializable{
      * cartItemId
      */
     @TableId
-    private Integer cartItemId;
+    private Long cartItemId;
     /**
      * userId
      */
-    private Integer userId;
+    private Long userId;
     /**
      * productId
      */
-    private Integer productId;
+    private Long productId;
     /**
      * quantity
      */

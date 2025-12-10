@@ -21,7 +21,7 @@ public interface ProductService extends IService<Products> {
 
     Result orderItemsByList(ProductListDto productListDto);
 
-    String findName(Integer productId);
+    String findName(Long productId);
 
     List<ItemVO> queryAllItem(int pageNum,int pageSize);
 }

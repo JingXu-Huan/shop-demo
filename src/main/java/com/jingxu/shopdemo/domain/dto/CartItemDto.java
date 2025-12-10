@@ -14,6 +14,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class CartItemDto {
     @JsonAlias({"product_id","productId"})
-    Integer productId;
+    Long productId;
     Integer quantity;
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 public class CartVO {
     String name;
-    Integer product_id;
+    Long product_id;
     Integer quantity;
     LocalDateTime added_at;
 }

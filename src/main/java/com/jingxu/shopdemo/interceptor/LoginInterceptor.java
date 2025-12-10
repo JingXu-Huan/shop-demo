@@ -22,7 +22,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        Integer userId = (Integer) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             response.setStatus(401);
             response.getWriter().write("请先登录");
