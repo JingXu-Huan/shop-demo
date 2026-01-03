@@ -58,8 +58,10 @@ public class AdminServiceImpl extends ServiceImpl<AdminsMapper, Admins> implemen
             });
         }
         // 使用单个插入避免SQL Server批量插入的IDENTITY列问题
-        for (Products product : products) {
-            productService.save(product);
+        if (products != null) {
+            for (Products product : products) {
+                productService.save(product);
+            }
         }
         return Result.ok("商品新增成功");
     }

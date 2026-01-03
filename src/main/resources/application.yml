@@ -1,37 +1,9 @@
 server:
   port: 8086
-
 spring:
   datasource:
     url: jdbc:sqlserver://8.162.6.187:1433;databaseName=shop;encrypt=false;sendStringParametersAsUnicode=true;sendTimeAsDatetime=false;selectMethod=cursor;responseBuffering=adaptive
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: sa
     password: JingXuPassword123
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-  jackson:
-    default-property-inclusion: NON_NULL
-    charset: UTF-8
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
 
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    charset: utf8
-    cache-enabled: false
-    call-setters-on-nulls: true
-    jdbc-type-for-null: 'null'
-    use-generated-keys: false
-    map-underscore-to-camel-case: true
-  global-config:
-    db-config:
-      db-type: sql_server
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-      id-type: none
-    banner: false

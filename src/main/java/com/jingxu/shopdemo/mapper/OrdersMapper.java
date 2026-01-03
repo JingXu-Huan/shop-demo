@@ -12,7 +12,6 @@ import java.util.List;
  * (orders)数据Mapper
  *
  * @author kancy
- * @description 由 Mybatisplus Code Generator 创建
  * @since 2025-12-08 13:33:59
  */
 @Mapper

@@ -16,7 +16,6 @@ import lombok.experimental.Accessors;
  *
  * @author kancy
  * @since 2025-12-08 13:33:59
- * @description 由 Mybatisplus Code Generator 创建
  */
 @Data
 @NoArgsConstructor
