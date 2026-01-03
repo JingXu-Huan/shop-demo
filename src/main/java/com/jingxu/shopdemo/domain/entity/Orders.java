@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,7 +30,7 @@ public class Orders implements Serializable {
     /**
      * orderId
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     @JsonSerialize(using = ToStringSerializer.class)
 	private Long orderId;
     /**
@@ -43,7 +44,7 @@ public class Orders implements Serializable {
     /**
      * status
      */
-    private Object status;
+    private String status;
     /**
      * createdAt
      */

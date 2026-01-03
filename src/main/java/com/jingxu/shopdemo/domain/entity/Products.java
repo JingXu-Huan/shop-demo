@@ -2,7 +2,6 @@ package com.jingxu.shopdemo.domain.entity;
 
 import java.io.Serial;
 import java.io.Serializable;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.math.BigDecimal;
@@ -29,8 +28,7 @@ public class Products implements Serializable {
     /**
      * productId
      */
-    @TableId
-	private Long productId;
+    private Long productId;
     /**
      * name
      */

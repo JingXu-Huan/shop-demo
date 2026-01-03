@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
 import java.time.LocalDateTime;
@@ -30,7 +31,7 @@ public class Users extends Model<Users> implements Serializable {
     /**
      * userId
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
 	private Long userId;
     /**
      * username

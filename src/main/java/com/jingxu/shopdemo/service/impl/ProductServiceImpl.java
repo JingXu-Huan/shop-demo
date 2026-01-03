@@ -2,6 +2,7 @@ package com.jingxu.shopdemo.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jingxu.shopdemo.domain.dto.ProductDto;
@@ -185,13 +186,15 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
 
     @Override
     public List<ItemVO> queryAllItem(int pageNum, int pageSize) {
-        Page<Products> page = this.page(new Page<>(pageNum, pageSize));
-
-        //总页数
+        // 指定分页排序
+        QueryWrapper<Products> wrapper = new QueryWrapper<>();
+        wrapper.orderByAsc("product_id"); // SQL Server 必须有 ORDER BY
+        // 分页查询
+        Page<Products> page = this.page(new Page<>(pageNum, pageSize), wrapper);
+        // 总页数
         long total = page.getTotal();
-        //当前页数
+        // 当前页数
         long current = page.getCurrent();
-
         List<Products> records = page.getRecords();
         List<ItemVO> voList = new ArrayList<>();
         records.forEach(record -> {
@@ -199,7 +202,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductsMapper, Products> im
             BeanUtils.copyProperties(record, itemVO);
             voList.add(itemVO);
         });
-
         return voList;
     }
+
 }

@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.math.BigDecimal;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class OrderItems extends Model<OrderItems> implements Serializable {
     /**
      * orderItemId
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
 	private Long orderItemId;
     /**
      * orderId

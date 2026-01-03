@@ -63,7 +63,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderItemsMapper, OrderItems> 
         // 批量查询商品
         List<Products> productsList = allProductIds.isEmpty()
                 ? new ArrayList<>()
-                : productsMapper.selectBatchIds(allProductIds);
+                : productsMapper.selectList(new LambdaQueryWrapper<Products>()
+                        .in(Products::getProductId, allProductIds));
         // 用 Map 快速查找
         Map<Long, Products> productMap = productsList.stream()
                 .collect(Collectors.toMap(p -> p.getProductId(), p -> p));
@@ -74,7 +75,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderItemsMapper, OrderItems> 
             OrdersVO ordersVO = new OrdersVO();
             ordersVO.setOrderId(order.getOrderId());
             ordersVO.setTotal(order.getTotalAmount());
-            ordersVO.setStatus((String) order.getStatus());
+            ordersVO.setStatus(order.getStatus());
             ordersVO.setOrderedTime(order.getCreatedAt());
 
             List<ItemVO> itemVOList = new ArrayList<>();

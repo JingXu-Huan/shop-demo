@@ -20,13 +20,17 @@ public interface OrdersMapper extends BaseMapper<Orders> {
     @Update({
             "<script>",
             "update orders",
-            "set status = '已发货'",
-            "where order_id in",
+            "set status = #{status}",
+            "where 1=1",
+            "<if test='ids != null and ids.size() > 0'>",
+            "and order_id in",
             "<foreach collection='ids' item='id' open='(' separator=',' close=')'>",
             "#{id}",
             "</foreach>",
+            "</if>",
             "</script>"
     })
-    void deliveryAll(@Param("ids") List<Long> ids);
+    void deliveryAll(@Param("ids") List<Long> ids, @Param("status") String status);
+
 
 }

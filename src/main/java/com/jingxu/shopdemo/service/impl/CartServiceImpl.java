@@ -39,6 +39,7 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
             if (productId == null || quantity == null || quantity <= 0) {
                 return Result.fail("商品信息不完整");
             }
+            // 构建实体，不传 cartItemId
             CartItems cartItems = new CartItems()
                     .setQuantity(quantity)
                     .setAddedAt(LocalDateTime.now())
@@ -53,6 +54,7 @@ public class CartServiceImpl extends ServiceImpl<CartItemsMapper, CartItems> imp
         }
         return Result.fail("商品添加失败");
     }
+
 
     @Override
     public List<CartVO> queryAllCartItem() {

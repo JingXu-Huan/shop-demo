@@ -52,9 +52,15 @@ public class AdminServiceImpl extends ServiceImpl<AdminsMapper, Admins> implemen
         }
         //批量属性赋值
         if (products != null) {
-            products.forEach(item -> item.setCreatedAt(LocalDateTime.now()));
+            products.forEach(item -> {
+                item.setCreatedAt(LocalDateTime.now());
+                item.setProductId(null);
+            });
         }
-        productService.saveBatch(products);
+        // 使用单个插入避免SQL Server批量插入的IDENTITY列问题
+        for (Products product : products) {
+            productService.save(product);
+        }
         return Result.ok("商品新增成功");
     }
 
@@ -74,7 +80,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminsMapper, Admins> implemen
         if (ids == null || ids.isEmpty()) {
             return Result.fail("商品列表为空");
         }
-        ordersMapper.deliveryAll(ids);
+        ordersMapper.deliveryAll(ids, "已发货");
         return Result.ok("发货成功");
     }
 }
